@@ -1,0 +1,13 @@
+INCLUDE(CMakeForceCompiler)
+
+SET(CMAKE_SYSTEM_NAME Generic)
+SET(CMAKE_SYSTEM_VERSION 1)
+SET(CMAKE_CROSSCOMPILING "TRUE")
+
+SET(LINKER_SCRIPT "${CMAKE_SOURCE_DIR}/LinkerScript.ld")
+
+SET(CMAKE_C_COMPILER "arm-none-eabi-gcc")
+SET(CMAKE_CXX_COMPILER "arm-none-eabi-g++")
+
+CMAKE_FORCE_C_COMPILER("arm-none-eabi-gcc" GNU)
+CMAKE_FORCE_CXX_COMPILER("arm-none-eabi-g++" GNU)
