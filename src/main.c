@@ -8,4 +8,20 @@ int main(void)
     SystemClock_Config();
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+
+    /*Configure GPIO pin : LED LD1 (green, next to reset switch) */
+    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_InitStruct.Pin = GPIO_PIN_1;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(GPIOI, &GPIO_InitStruct);
+
+    while(1)
+    {
+        HAL_GPIO_WritePin(GPIOI, GPIO_PIN_1, GPIO_PIN_SET);
+        HAL_Delay(1000);
+        HAL_GPIO_WritePin(GPIOI, GPIO_PIN_1, GPIO_PIN_RESET);
+        HAL_Delay(1000);
+    }
 }
