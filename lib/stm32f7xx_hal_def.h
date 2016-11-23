@@ -45,7 +45,7 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "../../CMSIS/Device/ST/STM32F7xx/Include/stm32f7xx.h"
+#include "stm32f7xx.h"
 #include "Legacy/stm32_hal_legacy.h"
 #include <stdio.h>
 /* Exported types ------------------------------------------------------------*/

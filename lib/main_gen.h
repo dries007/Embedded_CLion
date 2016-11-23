@@ -31,20 +31,15 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H
-#define __MAIN_H
-/* Includes ------------------------------------------------------------------*/
+#ifndef __MAIN_GEN_H
+#define __MAIN_GEN_H
 
-/* USER CODE BEGIN Includes */
-#include "../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h"
-#include "../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_rcc.h"
-#include "../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pwr.h"
-#include "../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_flash.h"
-#include "../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_cortex.h"
-#include "../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_gpio.h"
-/* USER CODE END Includes */
+#include "stm32f7xx_hal.h"
+#include <stdint.h>
 
-/* Private define ------------------------------------------------------------*/
+void SystemClock_Config(void);
+void Error_Handler(void);
+void MX_GPIO_Init(void);
 
 #define LCD_B0_Pin GPIO_PIN_4
 #define LCD_B0_GPIO_Port GPIOE
@@ -308,17 +303,6 @@
 #define ARDUINO_MISO_D12_GPIO_Port GPIOB
 #define ARDUINO_MOSI_PWM_D11_Pin GPIO_PIN_15
 #define ARDUINO_MOSI_PWM_D11_GPIO_Port GPIOB
-/* USER CODE BEGIN Private defines */
 
-/* USER CODE END Private defines */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-*/
-
-#endif /* __MAIN_H */
+#endif /* __MAIN_GEN_H */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -3,13 +3,8 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
-      <file path="$PROJECT_DIR$/Drivers/CMSIS/Device/ST/STM32F7xx/Include" />
-      <file path="$PROJECT_DIR$/Drivers/CMSIS/Device/ST/STM32F7xx/Source/Templates" />
-      <file path="$PROJECT_DIR$/Drivers/CMSIS/Include" />
-      <file path="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Inc" />
-      <file path="$PROJECT_DIR$/Drivers/STM32F7xx_HAL_Driver/Src" />
-      <file path="$PROJECT_DIR$/Inc" />
-      <file path="$PROJECT_DIR$/Src" />
+      <file path="$PROJECT_DIR$/lib" />
+      <file path="$PROJECT_DIR$/src" />
     </sourceRoots>
     <libraryRoots>
       <file path="$PROJECT_DIR$" />

@@ -40,7 +40,7 @@
  extern "C" {
 #endif
 
-//#include "../Src/main.h"
+#include "main.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 

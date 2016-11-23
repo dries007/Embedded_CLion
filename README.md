@@ -3,11 +3,17 @@ Embedded development on CLion
 
 I'm using an STM32 F7 Discovery (STM32F746G-DISCO), but I think this will help anyone doing cross platform compilation on CLion.
 
-- Clion version: 2016.3 EAP (Win), 2016.2 (Linux)
-- GNU ARM Toolchain: 5.4_2016q3
+- Clion version: 2016.3 (Linux & Windows)
+- GNU ARM Toolchain: 5.4_2016q3 (Windows) 6.2.0-1 (Arch Linux)
 - OpenOCD: 0.9.0
 
 **Note**: On windows, use MinGW.
+
+~Dries007 - nov 2016
+
+Sources: 
+- [Gold Coast Techspace: Getting to Blinky with the STM32 and Ubuntu Linux!](https://gctechspace.org/2014/09/getting-to-blinky-with-the-stm32-and-ubuntu-linux/)
+- [Clion blog: CLion for embedded development](https://blog.jetbrains.com/clion/2016/06/clion-for-embedded-development/)
 
 Installation
 ------------
@@ -15,14 +21,13 @@ Installation
 1. *[WIN]* Configure CLion to use MinGW.
 	Cygwin can probably be used if you have a compiler compiled for it, but MinGW lets you use any compiler for normal Windows.
 2. Download & Install your GCC compiler.
-	- Ubuntu: 
-		```
-		sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded
-		sudo apt-get update
-		sudo apt-get install gcc-arm-none-eabi
-		```
-	- Arch linux:
-		AUR package [gcc-arm-none-eabi-bin](https://aur.archlinux.org/packages/gcc-arm-none-eabi-bin/)
+	- Ubuntu (untested):
+        Add the right repo and install gcc-arm-none-eabi
+	    `sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded; sudo apt-get update; sudo apt-get install gcc-arm-none-eabi` 
+	- Arch linux packages:
+	    1. Pacman: `arm-none-eabi-newlib arm-none-eabi-gcc arm-none-eabi-gdb`
+	    2. Optional Pacman: `openocd stlink`
+	    3. Optional AUR: `stm32cubemx stm32flash`
 	- Windows (and other linux):
 		[Launchpad](https://launchpad.net/gcc-arm-embedded)
 3. Download & Install STM32CubeMX
@@ -47,10 +52,10 @@ Project Setup
     6. Finally, `Generate code`.
 2. Import a new project 'from sources' in CLion
     1. Import the root project folder.
-    2. Backup and replace `CMakeLists.txt` with [the attachement](#cmakelists) at the bottom.
-    3. Create `toolchain.cmake` with [the attachement](#toolchain) at the bottom.
+    2. Backup and replace `CMakeLists.txt` with [CMakeLists.txt](CMakeLists.txt) from git.
+    3. Create `toolchain.cmake` with [toolchain.cmake](toolchain.cmake) from git.
     4. Rename `STM32F746NGHx_FLASH.ld` (or equivalent) to `LinkerScript.ld`
-    5. Mark as `Project Sources and Headers`:
+    5. Mark as `Project Sources and Headers` (or don't yet, see step 3):
         - `Drivers/CMSIS/Device/ST/STM32F7xx/Include`
         - `Drivers/CMSIS/Device/ST/STM32F7xx/Sources/Templates`
         - `Drivers/CMSIS/Include`
@@ -66,80 +71,21 @@ Project Setup
         *You can ignore warnings about `CMAKE_FORCE_C_COMPILER` and `CMAKE_FORCE_CXX_COMPILER` being deprecated. The replacement for it doesn't seem to work in CLion.*
         - CMake Caches: `Tools -> CMake -> Reset Cache and Reload Project`
         - Build the actual code: `Run -> Build`
-3. Fix imports
-	For some reason, CLion won't recognise many of the imports and will turn the generated template red with errors.
-	I fixed this by replacing the offending `#import main.h` statements with there full path versions `#import ../Inc/main.h`.
-	You can see when CLion doesn't quite get it by looking for 'unused' imports.
-	This is annoying and cumbersome, but it beats having to use Eclipse.
-	
+3. Fix imports.
+    - For some reason, CLion won't recognise many of the imports and will turn the generated template red with errors.
+    - The fix: Flatten the file structure to just 1 'lib/' folder with sources and headers:
+    - **Move all files in include with a file manager, not CLion.**
+4. Move the pre-generated init code out of the `main` src-header pair.
+    - If you want cleaner code, move it to `lib/main_gen.c|h`.
+    - Don't forget to export the functions and call them in the same order in your new `main.c`
+5. Disable (strict) code inspection on the generated source.
+    - Make a new scope called "Lib" via `File -> Settings -> Appearance & Behaviour -> Scopes` and include `lib/` recursively.
+    - Now, via `Editor -> Inspections` in the settings window, click on `C/C++`.
+    - Via the dropdown "In All Scopes", select "Lib". The box should change to "Severity by scope"
+    - Set the level of "Lib" to "Weak Warning"
+    - You can do the same to other inspections like Spelling (Just uncheck the box to completely disable it in that scope)
+    - Run a code inspection (`Code -> Inspect Code...`). It will be a lot less crazy than without the scope limitation. (This also makes commit time inspections usefull agian.)
+    - You can also make a scope just for your code. It can come in handy in many situation, including code inspection.
 
-~Dries007 - nov 2016
 
-Sourcess: 
-- [Gold Coast Techspace: Getting to Blinky with the STM32 and Ubuntu Linux!](https://gctechspace.org/2014/09/getting-to-blinky-with-the-stm32-and-ubuntu-linux/)
-- [Clion blog: CLion for embedded development](https://blog.jetbrains.com/clion/2016/06/clion-for-embedded-development/)
-
-Attachements
-------------
-
-### Toolchain
-```cmake
-INCLUDE(CMakeForceCompiler)
-
-SET(CMAKE_SYSTEM_NAME Generic)
-SET(CMAKE_SYSTEM_VERSION 1)
-SET(CMAKE_CROSSCOMPILING "TRUE")
-
-SET(LINKER_SCRIPT "${CMAKE_SOURCE_DIR}/LinkerScript.ld")
-
-SET(CMAKE_C_COMPILER "arm-none-eabi-gcc")
-SET(CMAKE_CXX_COMPILER "arm-none-eabi-g++")
-
-CMAKE_FORCE_C_COMPILER("arm-none-eabi-gcc" GNU)
-CMAKE_FORCE_CXX_COMPILER("arm-none-eabi-g++" GNU)
-```
-
-### CMakeLists
-
-```cmake
-cmake_minimum_required(VERSION 3.6)
-# Project name
-project(CLion_Embedded C ASM)
-# Processor defenition **PROCESSOR / BOARD DEPENDANT**
-add_definitions(-DSTM32F746xx)
-add_definitions(-D__IO=volatile)
-
-file(GLOB_RECURSE USER_SOURCES "Src/*.c")
-file(GLOB_RECURSE HAL_SOURCES "Drivers/STM32F7xx_HAL_Driver/Src/*.c")
-
-# Compiler options **PROCESSOR / BOARD DEPENDANT**
-SET(COMMON_FLAGS "-mcpu=cortex-m7 -mthumb -mthumb-interwork -mfloat-abi=hard -mfpu=fpv5-sp-d16 -ffunction-sections -fdata-sections -g -fno-common -fmessage-length=0 -Wall")
-
-SET(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++11")
-SET(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=gnu99")
-
-SET(LINKER_SCRIPT "${CMAKE_SOURCE_DIR}/LinkerScript.ld")
-SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-gc-sections -T ${LINKER_SCRIPT}")
-
-add_library(CMSIS
-        Drivers/CMSIS/Device/ST/STM32F7xx/Source/Templates/system_stm32f7xx.c
-        Drivers/CMSIS/Device/ST/STM32F7xx/Source/Templates/gcc/startup_stm32f746xx.s)
-
-include_directories(Inc)
-include_directories(Drivers/STM32F7xx_HAL_Driver/Inc)
-include_directories(Drivers/CMSIS/Include)
-include_directories(Drivers/CMSIS/Device/ST/STM32F7xx/Include)
-
-add_executable(${PROJECT_NAME}.elf ${USER_SOURCES} ${HAL_SOURCES} ${LINKER_SCRIPT})
-
-target_link_libraries(${PROJECT_NAME}.elf CMSIS)
-
-# Make map, hex and bin
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map=${PROJECT_SOURCE_DIR}/build/${PROJECT_NAME}.map")
-set(HEX_FILE ${PROJECT_SOURCE_DIR}/build/${PROJECT_NAME}.hex)
-set(BIN_FILE ${PROJECT_SOURCE_DIR}/build/${PROJECT_NAME}.bin)
-add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
-        COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
-        COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
-        COMMENT "Building ${HEX_FILE} \nBuilding ${BIN_FILE}")
-```
+todo: Write debugger part

@@ -3,10 +3,10 @@ cmake_minimum_required(VERSION 3.6)
 project(CLion_Embedded C ASM)
 # Processor defenition **PROCESSOR / BOARD DEPENDANT**
 add_definitions(-DSTM32F746xx)
-add_definitions(-D__IO=volatile)
+add_definitions(-DARM_MATH_CM7)
 
-file(GLOB_RECURSE USER_SOURCES "Src/*.c")
-file(GLOB_RECURSE HAL_SOURCES "Drivers/STM32F7xx_HAL_Driver/Src/*.c")
+file(GLOB_RECURSE USER_SOURCES "src/*.c")
+file(GLOB_RECURSE HAL_SOURCES "lib/*.c")
 
 # Compiler options **PROCESSOR / BOARD DEPENDANT**
 SET(COMMON_FLAGS "-mcpu=cortex-m7 -mthumb -mthumb-interwork -mfloat-abi=hard -mfpu=fpv5-sp-d16 -ffunction-sections -fdata-sections -g -fno-common -fmessage-length=0 -Wall")
@@ -18,13 +18,11 @@ SET(LINKER_SCRIPT "${CMAKE_SOURCE_DIR}/LinkerScript.ld")
 SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-gc-sections -T ${LINKER_SCRIPT}")
 
 add_library(CMSIS
-        Drivers/CMSIS/Device/ST/STM32F7xx/Source/Templates/system_stm32f7xx.c
-        Drivers/CMSIS/Device/ST/STM32F7xx/Source/Templates/gcc/startup_stm32f746xx.s)
+        lib/system_stm32f7xx.c
+        lib/gcc/startup_stm32f746xx.s)
 
-include_directories(Inc)
-include_directories(Drivers/STM32F7xx_HAL_Driver/Inc)
-include_directories(Drivers/CMSIS/Include)
-include_directories(Drivers/CMSIS/Device/ST/STM32F7xx/Include)
+include_directories(lib)
+include_directories(src)
 
 add_executable(${PROJECT_NAME}.elf ${USER_SOURCES} ${HAL_SOURCES} ${LINKER_SCRIPT})
 
