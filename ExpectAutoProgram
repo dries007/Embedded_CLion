@@ -1,0 +1,17 @@
+#!/usr/bin/expect
+
+set timeout 5
+
+set name [lindex $argv 0]
+
+spawn telnet localhost 4444
+
+expect "Open On-Chip Debugger"
+
+send "reset halt
+"
+send "flash write_image erase $name 0x8000000
+"
+send "reset
+"
+

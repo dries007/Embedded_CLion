@@ -35,9 +35,9 @@ Installation
 	- Run it once and, via `Help -> Install New Libraries`, install the STM32F7 firmware package.
 4. Download & Install OpenOCD
 	- [Website OpenOCD](http://openocd.org/)
-	- Make sure you have the configuration `board/stm32f3discovery.cfg`.
-	  By default its at `<openocd install>/scripts/board/stm32f3discovery.cfg`
-	- If you don't, download [this](https://github.com/openrisc/openOCD/tree/master/tcl) git repo and unpack `tcl` somewhere (`<openocd install>/tcl`).
+	- Make sure you have the configuration `board/stm32f7discovery.cfg`.
+	  By default its at `<openocd install>/scripts/board/stm32f7discovery.cfg`
+	- If you don't, download [this](https://github.com/arduino/openOCD/tree/master/tcl) git repo and unpack `tcl` to `<openocd install>/scripts`.
 
 Project Setup
 -------------
@@ -85,7 +85,49 @@ Project Setup
     - Set the level of "Lib" to "Weak Warning"
     - You can do the same to other inspections like Spelling (Just uncheck the box to completely disable it in that scope)
     - Run a code inspection (`Code -> Inspect Code...`). It will be a lot less crazy than without the scope limitation. (This also makes commit time inspections usefull agian.)
-    - You can also make a scope just for your code. It can come in handy in many situation, including code inspection.
+    - You can also make a scope just for your code. It can come in handy in many situations. (code inspection, reformatting, ...)
+
+Debugger & Programmer Setup
+---------------------------
+
+todo: Write Windows alternatives
+
+1. Add external tools (`File -> Settings -> Tools -> External Tools`)
+    1. OpenOCD
+        - Name: OpenOCD
+        - Check `Open console`
+        - Program: `openocd`
+        - Parameter: `-f board/stm32f7discovery.cfg`
+        - Working directory: full path of `build/`
+    2. OpenOCD Telnet
+        - Name: OpenOCD Telnet
+        - Check `Open console`
+        - Program: `telnet`
+        - Parameters: `-c 127.0.0.1 4444`
+    3. Program Target
+        - Name: Program Target
+        - Check `Open console`
+        - Program: Full path of `ExpectAutoProgram`
+        - Parameters: `<NAME>.elf`
+        - Working directory: full path of `build/`
+2. Create a "CDB Remote Debug" profile via `Run -> Edit Configurations...`
+    - GDB: path of `arm-none-eabi-gdb` excecutable
+    - 'target remote' args: `localhost:3333`
+    - Symbol File: Full path of `build/<NAME>.elf`
+    - Before launch: `Run Another Configuation -> Build All`
+    - Before launch: `Run External Tool -> Program Target`
+
+**Once per session (opening of CLion):** 
+Start the OpenOCD external tool. (via `Tools -> External Tools -> OpenOCD`)
+This needs to say running for the debugger or programming script to work.
+
+Via the Telnet console you have manual access to the OpenOCD debugger.
+
+You need to pay attention to not overload your CPU with breakpoints.
+Via the OpenOCD remote tool tab you can see the hardware limits:
+Example: `stm32f7x.cpu: hardware has 8 breakpoints, 4 watchpoints`
 
 
-todo: Write debugger part
+Happy programming,
+*and most of all,*
+Happy debugging!
